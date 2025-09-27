@@ -1,0 +1,11 @@
+{
+  "error": {
+    "versions": {
+      "0.1.0": {
+        "path": "error/0.1.0/error-0.1.0.gspkg",
+        "dependencies": {}
+      }
+    },
+    "latest": "0.1.0"
+  }
+}
