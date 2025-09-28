@@ -1,0 +1,8 @@
+{
+  "name": "hash",
+  "version": "0.1.0",
+  "description": "A library for hashing arbitrary objects.",
+  "dependencies": [
+    "error>=0.1.0"
+  ]
+}
