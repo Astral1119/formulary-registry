@@ -11,5 +11,20 @@
     },
     "latest": "0.1.0",
     "description": "Utilities for handling errors"
+  },
+  "hash": {
+    "owners": [
+      "Astral1119"
+    ],
+    "versions": {
+      "0.1.0": {
+        "path": "packages/hash/0.1.0/hash-0.1.0.gspkg",
+        "dependencies": [
+          "error"
+        ]
+      }
+    },
+    "latest": "0.1.0",
+    "description": "Non-cryptographic hashing utilities"
   }
 }
