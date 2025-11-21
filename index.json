@@ -42,5 +42,22 @@
     },
     "latest": "0.1.0",
     "description": "Purely functional containers"
+  },
+  "anduin": {
+    "owners": [
+      "Astral1119"
+    ],
+    "versions": {
+      "0.1.0": {
+        "path": "packages/anduin/0.1.0/anduin-0.1.0.gspkg",
+        "dependencies": [
+          "error",
+          "hash",
+          "container"
+        ]
+      }
+    },
+    "latest": "0.1.0",
+    "description": "A library implementing Clojure-like object oriented programming features"
   }
 }
