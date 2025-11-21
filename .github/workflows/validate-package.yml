@@ -1,0 +1,42 @@
+name: Validate Package Submission
+
+on:
+  pull_request:
+    paths:
+      - 'packages/**/*.gspkg'
+      - 'index.json'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      
+      - name: Checkout base
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          path: base
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install packaging
+      
+      - name: Validate package submission
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: python3 .github/scripts/validate_package.py
+      
+      - name: Summary
+        if: success()
+        run: |
+          echo "Package validation passed! PR can be reviewed for merge."
