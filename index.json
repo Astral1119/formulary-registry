@@ -26,5 +26,21 @@
     },
     "latest": "0.1.0",
     "description": "Non-cryptographic hashing utilities"
+  },
+  "container": {
+    "owners": [
+      "Astral1119"
+    ],
+    "versions": {
+      "0.1.0": {
+        "path": "packages/container/0.1.0/container-0.1.0.gspkg",
+        "dependencies": [
+          "error",
+          "hash"
+        ]
+      }
+    },
+    "latest": "0.1.0",
+    "description": "Purely functional containers"
   }
 }
