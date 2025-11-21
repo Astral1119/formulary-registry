@@ -70,4 +70,4 @@ packages/
 
 ## License
 
-MIT
+CC0-1.0
