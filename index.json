@@ -72,5 +72,18 @@
     },
     "latest": "0.1.0",
     "description": "A library of common string comparison algorithms."
+  },
+  "prime": {
+    "owners": [
+      "Astral1119"
+    ],
+    "versions": {
+      "0.1.0": {
+        "path": "packages/prime/0.1.0/prime-0.1.0.gspkg",
+        "dependencies": []
+      }
+    },
+    "latest": "0.1.0",
+    "description": "A small library for prime number utilities."
   }
 }
