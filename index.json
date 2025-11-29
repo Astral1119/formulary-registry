@@ -66,9 +66,16 @@
           "hash",
           "container"
         ]
+      },
+      "0.2.0": {
+        "path": "packages/anduin/0.2.0/anduin-0.2.0.gspkg",
+        "dependencies": [
+          "error>=0.2.0",
+          "container>=0.2.0"
+        ]
       }
     },
-    "latest": "0.1.0",
+    "latest": "0.2.0",
     "description": "A library implementing Clojure-like object oriented programming features"
   },
   "string-comparison": {
