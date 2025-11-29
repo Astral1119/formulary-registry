@@ -42,9 +42,16 @@
           "error",
           "hash"
         ]
+      },
+      "0.2.0": {
+        "path": "packages/container/0.2.0/container-0.2.0.gspkg",
+        "dependencies": [
+          "debug",
+          "error>=0.2.0"
+        ]
       }
     },
-    "latest": "0.1.0",
+    "latest": "0.2.0",
     "description": "Purely functional containers"
   },
   "anduin": {
