@@ -89,5 +89,20 @@
     },
     "latest": "0.1.0",
     "description": "A small library for prime number utilities."
+  },
+  "debug": {
+    "owners": [
+      "Astral1119"
+    ],
+    "versions": {
+      "0.1.0": {
+        "path": "packages/debug/0.1.0/debug-0.1.0.gspkg",
+        "dependencies": [
+          "error>=0.2.0"
+        ]
+      }
+    },
+    "latest": "0.1.0",
+    "description": "Debugging utilities, especially for LAMBDA objects."
   }
 }
