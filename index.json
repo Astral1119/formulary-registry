@@ -7,9 +7,13 @@
       "0.1.0": {
         "path": "packages/error/0.1.0/error-0.1.0.gspkg",
         "dependencies": []
+      },
+      "0.2.0": {
+        "path": "packages/error/0.2.0/error-0.2.0.gspkg",
+        "dependencies": []
       }
     },
-    "latest": "0.1.0",
+    "latest": "0.2.0",
     "description": "Utilities for handling errors"
   },
   "hash": {
