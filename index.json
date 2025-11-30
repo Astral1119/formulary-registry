@@ -33,9 +33,16 @@
           "error",
           "debug"
         ]
+      },
+      "0.2.1": {
+        "path": "packages/hash/0.2.1/hash-0.2.1.gspkg",
+        "dependencies": [
+          "error",
+          "debug>=0.2.0"
+        ]
       }
     },
-    "latest": "0.2.0",
+    "latest": "0.2.1",
     "description": "Non-cryptographic hashing utilities"
   },
   "container": {
