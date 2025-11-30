@@ -121,9 +121,15 @@
         "dependencies": [
           "error>=0.2.0"
         ]
+      },
+      "0.2.0": {
+        "path": "packages/debug/0.2.0/debug-0.2.0.gspkg",
+        "dependencies": [
+          "error>=0.2.0"
+        ]
       }
     },
-    "latest": "0.1.0",
+    "latest": "0.2.0",
     "description": "Debugging utilities, especially for LAMBDA objects."
   }
 }
