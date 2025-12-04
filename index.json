@@ -138,5 +138,20 @@
     },
     "latest": "0.2.0",
     "description": "Debugging utilities, especially for LAMBDA objects."
+  },
+  "flookup": {
+    "owners": [
+      "Astral1119"
+    ],
+    "versions": {
+      "0.1.0": {
+        "path": "packages/flookup/0.1.0/flookup-0.1.0.gspkg",
+        "dependencies": [
+          "error>=0.2.0"
+        ]
+      }
+    },
+    "latest": "0.1.0",
+    "description": "A library of common string comparison algorithms."
   }
 }
