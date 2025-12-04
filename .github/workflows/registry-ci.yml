@@ -22,6 +22,10 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Install dependencies
+        run: |
+          pip install packaging
+
       - name: Validate Submission
         env:
           GITHUB_ACTOR: ${{ github.actor }}
