@@ -27,7 +27,16 @@ jobs:
           pip install packaging
 
       - name: Validate Submission
+        id: validate
         env:
           GITHUB_ACTOR: ${{ github.actor }}
         run: |
           python3 .github/scripts/validate_package.py --actor "$GITHUB_ACTOR"
+
+      - name: Enable auto-merge
+        if: steps.validate.outputs.can_auto_merge == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          echo "Auto-merge approved. Enabling..."
+          gh pr merge ${{ github.event.pull_request.number }} --auto --squash

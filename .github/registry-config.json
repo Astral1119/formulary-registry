@@ -1,0 +1,9 @@
+{
+    "trusted_users": [
+        "Astral1119"
+    ],
+    "rate_limit": {
+        "new_packages_per_week": 10,
+        "window_days": 7
+    }
+}

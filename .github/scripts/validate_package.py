@@ -31,6 +31,84 @@ def get_remote_index() -> Dict[str, Any]:
         print("Warning: Could not fetch remote index (might be first commit or network issue). Assuming empty.", file=sys.stderr)
         return {}
 
+def load_config() -> Dict[str, Any]:
+    """load registry configuration."""
+    try:
+        with open(".github/registry-config.json", "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print("Warning: registry-config.json not found. Using defaults.", file=sys.stderr)
+        return {
+            "trusted_users": [],
+            "rate_limit": {
+                "new_packages_per_week": 1,
+                "window_days": 7
+            }
+        }
+
+def count_recent_new_packages(actor: str, window_days: int) -> int:
+    """count how many new packages this user has submitted in the last N days."""
+    try:
+        # get commits in the last N days that modified index.json
+        since_date = f"{window_days}.days.ago"
+        log_output = run_command([
+            "git", "log",
+            f"--since={since_date}",
+            "--author=" + actor,
+            "--oneline",
+            "--", "index.json"
+        ])
+        
+        if not log_output:
+            return 0
+        
+        # for each commit, check if it added a new top-level key to index.json
+        commit_hashes = [line.split()[0] for line in log_output.split('\n') if line]
+        new_package_count = 0
+        
+        for commit_hash in commit_hashes:
+            try:
+                # get the diff for this commit
+                diff = run_command(["git", "show", commit_hash, "--", "index.json"])
+                
+                # look for lines that add a new top-level key (pattern: +"package-name": {)
+                # this is a simple heuristic - it looks for additions at the start of the JSON object
+                if re.search(r'^\+\s*"[^"]+"\s*:\s*\{', diff, re.MULTILINE):
+                    new_package_count += 1
+            except Exception:
+                # if we can't parse a commit, skip it
+                continue
+        
+        return new_package_count
+    except Exception as e:
+        print(f"Warning: Could not check rate limit: {e}", file=sys.stderr)
+        return 0
+
+def check_rate_limit(actor: str, config: Dict[str, Any], is_new_package: bool) -> bool:
+    """check if user can auto-merge (considering rate limits and trust)."""
+    # always allow updates
+    if not is_new_package:
+        return True
+    
+    # trusted users bypass rate limit
+    if actor in config.get("trusted_users", []):
+        print(f"✓ User {actor} is trusted, bypassing rate limit")
+        return True
+    
+    # check rate limit for new packages
+    window_days = config["rate_limit"]["window_days"]
+    limit = config["rate_limit"]["new_packages_per_week"]
+    
+    recent_count = count_recent_new_packages(actor, window_days)
+    
+    if recent_count >= limit:
+        print(f"Rate limit exceeded: {actor} has submitted {recent_count} new package(s) in the last {window_days} days (limit: {limit})")
+        return False
+    else:
+        print(f"Rate limit OK: {actor} has submitted {recent_count}/{limit} new package(s) in the last {window_days} days")
+        return True
+
+
 def validate_package_name(name: str) -> Optional[str]:
     """validate package name follows naming rules."""
     if not re.match(r'^[a-z][a-z0-9\-]*$', name):
@@ -222,6 +300,27 @@ def main():
         sys.exit(1)
     
     print("\nValidation PASSED")
+    
+    # load config for rate limiting
+    config = load_config()
+    
+    # determine if this PR contains new packages
+    is_new_package = not all(pkg_name in remote_index for pkg_name in local_index)
+    
+    # check if this PR can be auto-merged (considering rate limits)
+    can_auto_merge = check_rate_limit(actor, config, is_new_package)
+    
+    # write to GitHub Actions output
+    github_output = os.environ.get("GITHUB_OUTPUT")
+    if github_output:
+        with open(github_output, "a") as f:
+            f.write(f"can_auto_merge={'true' if can_auto_merge else 'false'}\n")
+            f.write(f"is_new_package={'true' if is_new_package else 'false'}\n")
+    
+    pr_type = 'New package submission' if is_new_package else 'Update to existing package(s)'
+    merge_status = 'Will auto-merge' if can_auto_merge else 'Requires manual review'
+    print(f"\nPR Type: {pr_type}")
+    print(f"Status: {merge_status}")
 
 if __name__ == "__main__":
     main()
