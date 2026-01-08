@@ -1,0 +1,69 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const allPackages = await getCollection('packages');
+
+// group packages by name and select the latest version
+const uniquePackages = new Map();
+
+allPackages.sort((a, b) => {
+    if (a.data.latest && !b.data.latest) return 1;
+    if (!a.data.latest && b.data.latest) return -1;
+    return 0;
+}).forEach(pkg => {
+    uniquePackages.set(pkg.data.title, pkg);
+});
+
+const packages = Array.from(uniquePackages.values());
+---
+
+<Layout title="Registry">
+    <div class="container">
+        <div class="search-container">
+            <h1 style="margin-bottom: 1rem;">Discover Packages</h1>
+            <p style="color: var(--color-text-muted); margin-bottom: 2rem;">
+                The official registry for Formulary, the package manager for Google Sheets.
+            </p>
+            <input type="text" id="search" placeholder="Search packages..." class="search-input" />
+        </div>
+
+        <div id="package-grid" class="package-grid">
+            {packages.map(pkg => (
+                <a href={`/packages/${pkg.slug}/`} class="card" data-search-index={(pkg.data.searchIndex || pkg.data.title).toLowerCase()}>
+                    <h3>{pkg.data.title}</h3>
+                    <div style="margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--color-text-muted);">
+                        v{pkg.data.version}
+                    </div>
+                    <p>{pkg.data.description}</p>
+                    {pkg.data.keywords && (
+                        <div class="tag-list">
+                            {pkg.data.keywords.split(',').map(tag => (
+                                <span class="tag">{tag.trim()}</span>
+                            ))}
+                        </div>
+                    )}
+                </a>
+            ))}
+        </div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('search') as HTMLInputElement;
+        const grid = document.getElementById('package-grid');
+        const cards = grid?.querySelectorAll('.card');
+
+        searchInput?.addEventListener('input', (e) => {
+            const term = (e.target as HTMLInputElement).value.toLowerCase();
+            
+            cards?.forEach((card) => {
+                const index = (card as HTMLElement).dataset.searchIndex || '';
+                if (index.includes(term)) {
+                    (card as HTMLElement).style.display = 'block';
+                } else {
+                    (card as HTMLElement).style.display = 'none';
+                }
+            });
+        });
+    </script>
+</Layout>

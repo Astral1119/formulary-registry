@@ -1,0 +1,19 @@
+{
+  "name": "site",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "npm run extract && astro dev",
+    "build": "npm run extract && astro build",
+    "extract": "node scripts/extract-docs.mjs",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@types/adm-zip": "^0.5.7",
+    "@types/fs-extra": "^11.0.4",
+    "adm-zip": "^0.5.16",
+    "astro": "^5.16.7",
+    "fs-extra": "^11.3.3"
+  }
+}

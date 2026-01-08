@@ -1,0 +1,168 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const packages = await getCollection('packages');
+  
+  const packageMap = packages.reduce((acc, entry) => {
+    const name = entry.slug.split('/')[0];
+    if (!acc[name]) acc[name] = [];
+    acc[name].push(entry);
+    return acc;
+  }, {});
+
+  const paths = packages.map(entry => {
+    const name = entry.slug.split('/')[0];
+    return {
+      params: { slug: entry.slug },
+      props: { entry, redirectTo: null, allVersions: packageMap[name] },
+    };
+  });
+
+  Object.entries(packageMap).forEach(([name, versions]) => {
+    const latest = versions.find(v => v.data.latest) || versions[0];
+    paths.push({
+      params: { slug: name },
+      props: { entry: null, redirectTo: `/packages/${latest.slug}/`, allVersions: versions },
+    });
+  });
+
+  return paths;
+}
+
+const { entry, redirectTo, allVersions } = Astro.props;
+
+if (redirectTo) {
+  return Astro.redirect(redirectTo);
+}
+
+const { Content } = await entry.render();
+const currentVersion = entry.data.version;
+const packageName = entry.slug.split('/')[0];
+---
+
+<Layout title={entry.data.title}>
+    <div class="container">
+        <div style="margin: 2rem 0;">
+            <a href="/" style="color: var(--color-text-muted); font-size: 0.9rem;">
+                ← Back to Registry
+            </a>
+        </div>
+
+        <div class="package-layout">
+            <div>
+                <div style="display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                    <h1 style="margin: 0; line-height: 1;">{entry.data.title}</h1>
+                    
+                    <div class="version-switcher">
+                        <button class="version-btn" style="font-family: var(--font-mono); font-weight: 500;">v{currentVersion}</button>
+                        <div class="version-dropdown">
+                            {allVersions.map(v => (
+                                <a href={`/packages/${v.slug}/`}>
+                                    v{v.data.version} {v.data.latest && '(latest)'}
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                <p style="font-size: 1.1rem; color: var(--color-text-muted); margin-bottom: 2rem; max-width: 600px;">
+                    {entry.data.description}
+                </p>
+
+                <div class="install-box">
+                    <code>formulary install {entry.data.title}=={entry.data.version}</code>
+                    <button class="copy-btn" id="copy-install">Copy</button>
+                </div>
+
+                <article class="markdown-content">
+                    <Content />
+                </article>
+            </div>
+
+            <aside>
+                <div style="background: var(--color-surface); border: 1px solid var(--color-border); padding: 1.25rem; border-radius: 12px; position: sticky; top: 2rem;">
+                    <h3 style="margin-top: 0; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted);">Package Info</h3>
+                    <div style="display: flex; flex-direction: column; gap: 1.25rem; font-size: 0.9rem;">
+                        {entry.data.license && (
+                            <div>
+                                <div style="color: var(--color-text-muted); margin-bottom: 0.25rem;">License</div>
+                                <div style="font-weight: 500;">{entry.data.license}</div>
+                            </div>
+                        )}
+                        {entry.data.homepage && (
+                            <div>
+                                <div style="color: var(--color-text-muted); margin-bottom: 0.25rem;">Homepage</div>
+                                <a href={entry.data.homepage} target="_blank" rel="noopener noreferrer" style="font-weight: 500; display: block; overflow: hidden; text-overflow: ellipsis;">
+                                    {(() => {
+                                        try {
+                                            return new URL(entry.data.homepage).hostname;
+                                        } catch {
+                                            return 'Github';
+                                        }
+                                    })()}
+                                </a>
+                            </div>
+                        )}
+                        {entry.data.keywords && (
+                            <div>
+                                <div style="color: var(--color-text-muted); margin-bottom: 0.5rem;">Keywords</div>
+                                <div class="tag-list">
+                                    {entry.data.keywords.split(',').map(tag => (
+                                        <span class="tag">{tag.trim()}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {entry.data.dependencies && entry.data.dependencies.length > 0 && (
+                            <div>
+                                <div style="color: var(--color-text-muted); margin-bottom: 0.5rem;">Dependencies</div>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                    {entry.data.dependencies.map(dep => {
+                                        const match = dep.match(/^([a-z0-9-]+)(?:>=|@)?(.*)$/i);
+                                        const depName = match ? match[1] : dep;
+                                        return (
+                                            <a href={`/packages/${depName}/`} style="color: var(--color-primary); text-decoration: none;">
+                                                {dep}
+                                            </a>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('copy-install')?.addEventListener('click', () => {
+            const code = document.querySelector('.install-box code')?.textContent;
+            if (code) {
+                navigator.clipboard.writeText(code);
+                const btn = document.getElementById('copy-install');
+                if (btn) {
+                    btn.textContent = 'Copied!';
+                    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+                }
+            }
+        });
+    </script>
+</Layout>
+
+<style is:global>
+    .markdown-content h2 {
+        margin-top: 3rem;
+        border-bottom: 1px solid var(--color-border);
+        padding-bottom: 0.5rem;
+    }
+    .markdown-content pre {
+        background: var(--color-surface);
+        padding: 1rem;
+        border-radius: 8px;
+        overflow-x: auto;
+        border: 1px solid var(--color-border);
+    }
+</style>
